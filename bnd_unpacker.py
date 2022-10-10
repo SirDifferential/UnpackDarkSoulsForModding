@@ -7,7 +7,7 @@ def consume_byte(content, offset, byte, length=1):
      are not all byte, raises a ValueError.
     """
     
-    for i in xrange(0, length-1):
+    for i in range(0, length-1):
         if content[offset + i] != byte:
             raise ValueError("Expected byte '" + byte.encode("hex") + "' at offset " +\
                     hex(offset + i) + " but received byte '" +\
@@ -85,7 +85,7 @@ def unpack_bnd(content, basepath, n_basepath):
     master_offset = 0x20
     
     count = 0
-    for _ in xrange(num_of_records):
+    for _ in range(num_of_records):
         if magic_flag == 0x74 or magic_flag == 0x54:
             (record_sep, filedata_size, filedata_offset, file_id, 
              filename_offset, dummy_filedata_size) = struct.unpack_from("<IIIIII", content, offset=master_offset)
@@ -117,7 +117,7 @@ def unpack_bnd(content, basepath, n_basepath):
     
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print "Usage: " + str(sys.argv[0]) + " <BND3 File>"
+        print("Usage: " + str(sys.argv[0]) + " <BND3 File>")
     else:
         filepath = sys.argv[1]
         (directory, filename) = os.path.split(os.path.abspath(filepath))
@@ -126,6 +126,6 @@ if __name__ == "__main__":
             file_list = unpack_bnd(file_content, 
              os.path.join(directory, filename + '.extract'), 
              os.path.join(directory, filename + '.n_extract'), filename)
-        print "  - Created file list:"
+        print("  - Created file list:")
         for filename in file_list:
-            print "  - " + str(filename)
+            print("  - " + str(filename))

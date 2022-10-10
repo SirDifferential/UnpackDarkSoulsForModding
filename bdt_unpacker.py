@@ -11,7 +11,7 @@ def consume_byte(content, offset, byte, length=1):
      are not all byte, raises a ValueError.
     """
     
-    for i in xrange(0, length-1):
+    for i in range(0, length-1):
         if content[offset + i] != byte:
             raise ValueError("Expected byte '" + byte.encode("hex") + "' at offset " +\
                     hex(offset + i) + " but received byte '" +\
@@ -89,7 +89,7 @@ def parse_bhd_header_to_dict(header):
     # Skip to the records.
     master_offset = 0x20
     
-    for _ in xrange(num_of_records):
+    for _ in range(num_of_records):
         (record_sep, filedata_size, filedata_offset, file_id, 
          filename_offset, dummy_filedata_size) = struct.unpack_from("<IIIIII", content, offset=master_offset)
         master_offset += struct.calcsize("<IIIIII")
@@ -141,10 +141,10 @@ def parse_bhd5_header_to_dict(header):
     (bin_count, bin_offset) = struct.unpack_from("<II", header_str, offset=master_offset)
     master_offset += struct.calcsize("<II")
             
-    for _ in xrange(bin_count):
+    for _ in range(bin_count):
         (bin_record_count, bin_record_offset) = struct.unpack_from("<II", header_str, offset=master_offset)
         master_offset += struct.calcsize("<II")
-        for _ in xrange(bin_record_count):
+        for _ in range(bin_record_count):
             (record_hash, record_size, record_offset, zero) = struct.unpack_from("<IIII", header_str, offset=bin_record_offset)
             bin_record_offset += struct.calcsize("<IIII")
             if zero != 0:
@@ -173,8 +173,8 @@ def unpack_archive(header, data, basepath):
     else:
         raise ValueError("Header file does not match known formats.")
 
-    num_of_files = len(file_dict.keys())
-    print "   - Found " + str(num_of_files) + " records in header file."
+    num_of_files = len(list(file_dict.keys()))
+    print("   - Found " + str(num_of_files) + " records in header file.")
     
     with open(data, 'rb') as d:
         HEADER_STRING = "BDF307D7R6\x00\x00\x00\x00\x00\x00"
@@ -200,8 +200,8 @@ def unpack_archive(header, data, basepath):
             f.close()
             
             count += 1
-            print "\r   - Unpacking files from archive (" + str(count) + "/" + str(num_of_files) + ")...",
+            print("\r   - Unpacking files from archive (" + str(count) + "/" + str(num_of_files) + ")...", end=' ')
             sys.stdout.flush()
-        print "Done."
+        print("Done.")
     
     return created_file_list

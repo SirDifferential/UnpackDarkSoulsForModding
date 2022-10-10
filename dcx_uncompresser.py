@@ -8,7 +8,7 @@ def consume_byte(content, offset, byte, length=1):
      are not all byte, raises a ValueError.
     """
     
-    for i in xrange(0, length-1):
+    for i in range(0, length-1):
         if content[offset + i] != byte:
             raise ValueError("Expected byte '" + byte.encode("hex") + "' at offset " +\
                     hex(offset + i) + " but received byte '" +\
@@ -82,7 +82,7 @@ def uncompress_dcx_content(content):
     
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print "Usage: " + str(sys.argv[0]) + " <DCX File>"
+        print("Usage: " + str(sys.argv[0]) + " <DCX File>")
     else:
         filename = sys.argv[1]
         if filename[-4:] == ".dcx":

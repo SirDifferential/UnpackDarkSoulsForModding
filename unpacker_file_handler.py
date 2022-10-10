@@ -99,7 +99,7 @@ def check_archives():
     missing_files = []
     has_matching_checksum = []
     for k in sorted(FILE_CHECKSUMS.keys()):
-        print "   - Computing checksum of archive file \"" + k + "\"...",
+        print("   - Computing checksum of archive file \"" + k + "\"...", end=' ')
         sys.stdout.flush()
         if os.path.isfile(k):
             existing_files.append(k)
@@ -111,7 +111,7 @@ def check_archives():
         else:
             log.info("Archive '" + k + "' is missing.")
             missing_files.append(k)
-        print "Done."
+        print("Done.")
         sys.stdout.flush()
     return (existing_files, has_matching_checksum, missing_files)
 
@@ -148,10 +148,10 @@ def make_backups(filelist):
         if not os.path.isdir(BACKUP_DIR):
             raise
     for f in filelist:
-        print " - Backing up file \"" + f + "\"...",
+        print(" - Backing up file \"" + f + "\"...", end=' ')
         sys.stdout.flush()
         shutil.copy2(f, BACKUP_DIR)
-        print "Done."
+        print("Done.")
         
 def remove_unpacked_dirs(dirs):
     """Remove any directory in dirs and any subdirectories."""
@@ -204,7 +204,7 @@ def modify_exe(filename):
                 mm.write(replace_str)
                 count += 1
                 next_pos = mm.find(find_str)
-            print " - Transmuted " + str(count) + " occurances of \"" + name + "\" in .exe."
+            print(" - Transmuted " + str(count) + " occurances of \"" + name + "\" in .exe.")
             log.info(str(count) + "x replacements of \"" + name + "\" in .exe.")
             sys.stdout.flush()
         
@@ -220,7 +220,7 @@ def modify_exe(filename):
             mm.write("\xeb\x12")
         else:
             raise ValueError("Unknown .exe version byte.")
-        print " - Disabled .dcx loading in .exe."
+        print(" - Disabled .dcx loading in .exe.")
             
         mm.flush()
         mm.close()
@@ -262,7 +262,7 @@ def unpack_archives():
         header_file = "dvdbnd" + str(i) + ".bhd5"
         data_file = "dvdbnd" + str(i) + ".bdt"
         
-        print " - Unpacking archive " + str(data_file) + " using header " + str(header_file)
+        print(" - Unpacking archive " + str(data_file) + " using header " + str(header_file))
         log.info("Unpack " + str(data_file) + " via " + str(header_file))
         new_files = bdt_unpacker.unpack_archive(header_file, data_file, os.getcwd())
         log.info(" Unpacking yielded " + str(len(new_files)) + " new files.")
@@ -271,7 +271,7 @@ def unpack_archives():
     # Convert to set and back to remove duplicates.
     created_file_list = list(set(created_file_list))
         
-    print " - Unpacking BND archives."
+    print(" - Unpacking BND archives.")
     bnd_list = [f for f in created_file_list if os.path.splitext(f)[1][-3:] == "bnd"]
     log.info("Found " + str(len(bnd_list)) + " *bnd files.")
     msg_len = 0
@@ -297,14 +297,14 @@ def unpack_archives():
                     manifest_string_list.append(" " + new_file_rel)
         
         
-        print "\r" + " " * msg_len,
+        print("\r" + " " * msg_len, end=' ')
         msg = "\r  - (" + str(count+1) + "/" + str(len(bnd_list)) + ") Unpacking BND file " + str(filename) + "..."
-        print msg,
+        print(msg, end=' ')
         msg_len = len(msg)
         sys.stdout.flush()
-    print "Done."
+    print("Done.")
     
-    print " - Writing custom copy of missing file(s)...",
+    print(" - Writing custom copy of missing file(s)...", end=' ')
     log.info("Write reconstructed file(s).")
     manifest_string_list.append("-- Custom --")
     filepath = c4110_replacement.PATH.replace('\\', '/')
@@ -316,7 +316,7 @@ def unpack_archives():
     created_file_list.append(filepath_to_use)
     new_file_rel = os.path.relpath(filepath_to_use, os.path.join(os.getcwd(), TEMP_FRPG_DIR))
     manifest_string_list.append(" " + new_file_rel)
-    print "Done."
+    print("Done.")
     
     # Write out manifest, now that all *bnd-related files have been unpacked / created.
     log.info("Write manifest.")
@@ -326,21 +326,21 @@ def unpack_archives():
         g.close()
     
     log.info("Build bdt/bhd pairing.")
-    print " - Examining unpacked files for BDT/BHD pairs...",
+    print(" - Examining unpacked files for BDT/BHD pairs...", end=' ')
     pairing_dict = build_bdt_bhd_pairing(list(set(created_file_list)))
     for bdt_file in pairing_dict:
         if len(pairing_dict[bdt_file]) == 0:
             raise ValueError("BDT File \"" + str(bdt_file) + "\" has no corresponding header file.")
-    print "Done."
+    print("Done.")
     
-    total_pairs = len(pairing_dict.keys())
+    total_pairs = len(list(pairing_dict.keys()))
     for count, bdt_file in enumerate(sorted(pairing_dict.keys())):
-        print "\r - (" + str(count+1) + "/" + str(total_pairs) + ") Unpacking BDT/BHD pairs... "
+        print("\r - (" + str(count+1) + "/" + str(total_pairs) + ") Unpacking BDT/BHD pairs... ")
         (_, bdt_filename) = os.path.split(os.path.abspath(bdt_file))
         matching_bhd_file = pairing_dict[bdt_file][0]
         (_, bhd_filename) = os.path.split(os.path.abspath(matching_bhd_file))
         
-        print "  - Unpacking archive " + str(bdt_filename) + " using header " + str(bhd_filename)
+        print("  - Unpacking archive " + str(bdt_filename) + " using header " + str(bhd_filename))
         log.info("Unpack " + str(bdt_filename) + " via " + str(bhd_filename))
         
         # Redirect the output of the file depending on its extension, so that
@@ -356,12 +356,12 @@ def unpack_archives():
             raise ValueError("Unrecognized *bdt file extension: \"" + bdt_file_ext + "\".")
         directory = os.path.abspath(os.path.join(os.getcwd(), rel_directory))
         bdt_unpacker.unpack_archive(matching_bhd_file, bdt_file, directory)
-        print "\r" + (ANSI_CURSOR_UP_LINE + ANSI_CLEAR_LINE)*4, # Erase the previous three lines.
-    print "\r - (" + str(total_pairs) + "/" + str(total_pairs) + ") Unpacking BDT/BHD pairs... Done."
+        print("\r" + (ANSI_CURSOR_UP_LINE + ANSI_CLEAR_LINE)*4, end=' ') # Erase the previous three lines.
+    print("\r - (" + str(total_pairs) + "/" + str(total_pairs) + ") Unpacking BDT/BHD pairs... Done.")
      
-    print " - Removing BDT/BHD pairs... ",
+    print(" - Removing BDT/BHD pairs... ", end=' ')
     log.info("Remove bdt/bhd pairs.")
-    for bdt_file in pairing_dict.keys(): 
+    for bdt_file in list(pairing_dict.keys()): 
         matching_bhd_file = pairing_dict[bdt_file][0]
         try:
             os.remove(bdt_file)
@@ -373,7 +373,7 @@ def unpack_archives():
         except OSError:
             if not os.path.isfile(matching_bhd_file):
                 raise
-    print "Done."
+    print("Done.")
     return
     
 def remove_archives():
@@ -413,7 +413,7 @@ def yes_no(answer):
     no = set(['no','n'])
      
     while True:
-        choice = raw_input(answer).lower()
+        choice = input(answer).lower()
         if choice in yes:
             log.info("User chose Y for question '" + answer + "'.")
             return True
@@ -421,12 +421,12 @@ def yes_no(answer):
             log.info("User chose N for question '" + answer + "'.")
             return False
         else:
-            print "Unknown response. Respond [Y]es / [N]o.  "
+            print("Unknown response. Respond [Y]es / [N]o.  ")
 
 def wait_before_exit(exit_code):
     """Displays a message before exiting with exit code exit_code"""
     
-    raw_input("Exiting. Press ENTER to continue... ")
+    input("Exiting. Press ENTER to continue... ")
     log.info("Exited with exit code " + str(exit_code)) 
     sys.exit(exit_code)
 
@@ -438,33 +438,33 @@ def attempt_unpack():
     """
     log.info("Beginning unpack.")
     
-    print "Preparing to unpack Dark Souls for modding..."
-    print "Examining current directory..."
+    print("Preparing to unpack Dark Souls for modding...")
+    print("Examining current directory...")
     
     already_unpacked = check_for_unpacked_dir()
     log.info("Existing used directories: " + str(already_unpacked))
     
     log.info(".exe check.")
-    print " - Examining Dark Souls executable...",
+    print(" - Examining Dark Souls executable...", end=' ')
     (exe_name, exe_status) = check_exe()
     log.info(".exe status: " + exe_status)
     if exe_status != "Expected" and exe_status != "Unpacked" and exe_status != "Expected Debug":
-        print ""
+        print("")
         if exe_status == "Unexpected":
             if not yes_no(ANSI_BRIGHT_YELLOW + "WARNING: " + ANSI_END + 
              "Executable does not match expected checksum.\n  Continue anyway? [Y]es / [N]o  "):
                 wait_before_exit(1)
         else:
-            print (ANSI_BRIGHT_RED + "ERROR: " + ANSI_END + 
-             "Executable DARKSOULS.exe was not found.\n  Check current directory and try again.")
+            print((ANSI_BRIGHT_RED + "ERROR: " + ANSI_END + 
+             "Executable DARKSOULS.exe was not found.\n  Check current directory and try again."))
             log.info("No .exe found.")
             wait_before_exit(1)
     else:
-        print "Done."
+        print("Done.")
     
     only_modify_exe = False
     log.info(".dvdbdt check.")
-    print " - Examining data archives..."
+    print(" - Examining data archives...")
     (arc_exists, arc_has_good_checksum, arc_missing) = check_archives()
     log.info("Archives missing: " + str(arc_missing))
     log.info("Archives existing: " + str(arc_exists))
@@ -472,21 +472,21 @@ def attempt_unpack():
     if len(arc_missing) > 0:
         if (len(arc_exists) == 0 and (exe_status == "Unpacked" or exe_status == "Unpacked Debug") 
          and len(already_unpacked) == len(UNPACKED_DIRS) and check_dir_exists(BACKUP_DIR)):
-            print "Unpacking appears to be have been previously completed. Exiting."
+            print("Unpacking appears to be have been previously completed. Exiting.")
             log.info("Already completed.")
             wait_before_exit(0)
         elif len(arc_exists) == 0 and exe_status != "Unpacked" and exe_status != "Unpacked Debug":
-            print ("No archives present, but unmodified .exe found.\n  " + ANSI_BRIGHT_YELLOW + 
-             "WARNING: " + ANSI_END + "Patching the .exe alone will not unpack Dark Souls fully.")
+            print(("No archives present, but unmodified .exe found.\n  " + ANSI_BRIGHT_YELLOW + 
+             "WARNING: " + ANSI_END + "Patching the .exe alone will not unpack Dark Souls fully."))
             if yes_no("  Patch .exe? Unpacking will abort after this step. [Y]es / [N]o  "):
                 only_modify_exe = True
             else:
                 wait_before_exit(1)
         if not only_modify_exe:
-            print (ANSI_BRIGHT_RED + "ERROR: " + ANSI_END + 
-             "The following archive files are missing.\n  Check current directory and try again.")
+            print((ANSI_BRIGHT_RED + "ERROR: " + ANSI_END + 
+             "The following archive files are missing.\n  Check current directory and try again."))
             for f in arc_missing:
-                print " * " + f
+                print(" * " + f)
             wait_before_exit(1)
     if not only_modify_exe:
         for f in arc_exists:
@@ -497,12 +497,12 @@ def attempt_unpack():
                     
     log.info("DATA check.")
     if not only_modify_exe:
-        print " - Examining directory contents..."
+        print(" - Examining directory contents...")
         if len(already_unpacked) > 0:
             log.info("DATA has used directories.")
-            print "The following destination directories already exist\n  and will be deleted before unpacking begins."
+            print("The following destination directories already exist\n  and will be deleted before unpacking begins.")
             for d in already_unpacked:
-                print " * " + d
+                print(" * " + d)
             if not yes_no(ANSI_BRIGHT_YELLOW + "  WARNING: " + ANSI_END + 
              "The current contents of these directories " + ANSI_BRIGHT_YELLOW + 
              "WILL" + ANSI_END + " be lost.\n  Continue anyway? [Y]es / [N]o  "):
@@ -529,73 +529,73 @@ def attempt_unpack():
         if not yes_no("Remove temporarily unpacked *bnd directory when completed?\n" + 
          "  This directory is useful for making mods only.\n  (Answer Yes if unsure.)  [Y]es / [N]o  "):
             should_remove_temp_dir = False
-    print "Done." 
+    print("Done.") 
     
     log.info("Make backup")
     if should_make_backups:
-        print "Making backups..."
+        print("Making backups...")
         if only_modify_exe:
             files_to_backup = [exe_name]
         else:
             files_to_backup = [exe_name] + arc_exists
         make_backups(files_to_backup)
-        print "Done."
+        print("Done.")
     else:
-        print "Skipping backing-up important files."
+        print("Skipping backing-up important files.")
         
     log.info(".exe modifications.")
     if exe_status == "Unpacked":
-        print "Skipping modifying .exe file (checksum matches processed .exe)"
+        print("Skipping modifying .exe file (checksum matches processed .exe)")
         log.info("Skipping .exe modifications; already processed.")
     else:
-        print "Modifying .exe file..."
+        print("Modifying .exe file...")
         modify_exe(exe_name)
         if exe_status == "Expected" or exe_status == "Expected Debug":
-            print "Done. Verifying modifications...",
+            print("Done. Verifying modifications...", end=' ')
             (_, mod_exe_status) = check_exe()
             if ((exe_status == "Expected" and mod_exe_status == "Unpacked") or 
              (exe_status == "Expected Debug" and mod_exe_status == "Unpacked Debug")):
-                print "Done."
+                print("Done.")
                 log.info("Appears to have verifiably worked.")
             else:
-                print ""
+                print("")
                 if not yes_no(ANSI_BRIGHT_YELLOW + "WARNING: " + ANSI_END + 
                  "Modified .exe does not match expected checksum.\n  Continue anyway? [Y]es / [N]o  "):
                     wait_before_exit(1)
         else:
-            print "Done. Skipping checksum verification of non-standard .exe."
+            print("Done. Skipping checksum verification of non-standard .exe.")
             log.info("Appears to have non-verifiably worked.")
             
     if only_modify_exe:
-        print "Aborting unpacking after .exe modification."
+        print("Aborting unpacking after .exe modification.")
         log.info("Aborting due to only .exe")
         wait_before_exit(0)
         
     if len(already_unpacked) > 0:
-        print "Deleting existing unpacked archive directories...",
+        print("Deleting existing unpacked archive directories...", end=' ')
         log.info("Deleting used directories.")
         remove_unpacked_dirs(already_unpacked)
-        print "Done."
+        print("Done.")
     
     log.info("Unpacking dvdbnds.")
-    print "Unpacking archives..."
+    print("Unpacking archives...")
     create_unpacked_dirs()
     unpack_archives()
-    print "Done."
+    print("Done.")
 
     log.info("Removing dvdbnds.")
-    print "Removing archives...",
+    print("Removing archives...", end=' ')
     remove_archives()
-    print "Done."
+    print("Done.")
     
     if should_remove_temp_dir:
         log.info("Removing TEMP_FRPG_DIR.")
-        print "Removing temporary directories...",
+        print("Removing temporary directories...", end=' ')
         remove_temp_dir()
-        print "Done."
+        print("Done.")
         
     log.info("Done.")
-    print "Unpacking completed. \[T]/"
+    print("Unpacking completed. \[T]/")
     wait_before_exit(0)
 
     return
