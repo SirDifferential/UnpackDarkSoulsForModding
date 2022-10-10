@@ -1,3 +1,5 @@
+This work supports Python 3
+
 # UnpackDarkSoulsForModding
 Unpacks Dark Souls 1 archive files for easier modding. This allows mods to be distributed as raw files, rather than as packed dvdbnd archives.
 
